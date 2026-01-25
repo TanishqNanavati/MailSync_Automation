@@ -20,16 +20,6 @@ from state_manager import StateManager
 def main():
     """
     Main execution function - orchestrates the entire workflow.
-    
-    Workflow:
-    1. Authenticate with Gmail and Sheets APIs
-    2. Load state (processed message IDs)
-    3. Fetch unread emails from Gmail
-    4. Filter out already-processed emails
-    5. Parse email data
-    6. Append to Google Sheets
-    7. Update state
-    8. Mark emails as read
     """
     print("=" * 70)
     print("📧 Gmail to Google Sheets Automation")
@@ -54,7 +44,6 @@ def main():
         gmail = GmailService(credentials)
         sheets = SheetsService(credentials)
         state = StateManager()
-        
         print()
         
         # =====================================================================
@@ -75,10 +64,6 @@ def main():
         
         if not all_message_ids:
             print("✅ No unread emails found. Nothing to process.")
-            print()
-            print("=" * 70)
-            print("✨ Automation Complete!")
-            print("=" * 70)
             return
         
         print()
@@ -92,18 +77,14 @@ def main():
         new_message_ids = state.filter_new_messages(all_message_ids)
         
         if not new_message_ids:
-            print("✅ All emails have been processed already. Nothing new to add.")
-            print()
-            print("=" * 70)
-            print("✨ Automation Complete!")
-            print("=" * 70)
+            print("✅ All emails already processed.")
             return
         
-        print(f"🆕 Found {len(new_message_ids)} new email(s) to process")
+        print(f"🆕 Found {len(new_message_ids)} new email(s)")
         print()
         
         # =====================================================================
-        # Step 6: Process Each Email
+        # Step 6: Process Emails
         # =====================================================================
         print("⚙️  Step 6: Processing emails...")
         print("-" * 70)
@@ -113,18 +94,25 @@ def main():
         
         for i, message_id in enumerate(new_message_ids, 1):
             try:
-                print(f"\n[{i}/{len(new_message_ids)}] Processing email: {message_id}")
+                print(f"\n[{i}/{len(new_message_ids)}] Processing: {message_id}")
                 
-                # Fetch full message details
                 message = gmail.fetch_message_details(message_id)
-                
-                # Parse email data
                 parsed = parse_email(message)
                 
                 print(f"   📧 From: {parsed['from']}")
-                print(f"   📝 Subject: {parsed['subject'][:50]}...")
+                print(f"   📝 Subject: {parsed['subject'][:60]}...")
                 
-                # Prepare row for Sheets (matching SHEET_HEADERS order)
+                # -------------------------------------------------------------
+                # Phase 10: Subject Keyword Filtering
+                # -------------------------------------------------------------
+                if config.SUBJECT_KEYWORDS:
+                    subject_lower = parsed['subject'].lower()
+                    if not any(k.lower() in subject_lower for k in config.SUBJECT_KEYWORDS):
+                        print("   ⏭️  Skipped (subject keyword filter)")
+                        gmail.mark_as_read(message_id)
+                        state.mark_as_processed(message_id)
+                        continue
+                
                 row = [
                     parsed['message_id'],
                     parsed['from'],
@@ -133,26 +121,20 @@ def main():
                     parsed['content']
                 ]
                 
-                # Append to Google Sheets
                 success = sheets.append_row(row)
                 
                 if success:
-                    # Mark as processed in state
                     state.mark_as_processed(message_id)
-                    
-                    # Mark as read in Gmail
                     gmail.mark_as_read(message_id)
-                    print(f"   ✅ Successfully processed and marked as read")
-                    
                     processed_count += 1
+                    print("   ✅ Successfully processed")
                 else:
-                    print(f"   ⚠️  Failed to append to Sheets (will retry next run)")
                     failed_count += 1
+                    print("   ⚠️  Failed to append (will retry)")
                 
             except Exception as e:
-                print(f"   ❌ Error processing email: {e}")
                 failed_count += 1
-                # Don't mark as processed so it will be retried next run
+                print(f"   ❌ Error: {e}")
                 continue
         
         print()
@@ -171,44 +153,16 @@ def main():
         print("=" * 70)
         print("✨ Automation Complete!")
         print("=" * 70)
+        print(f"✅ Processed: {processed_count}")
+        if failed_count:
+            print(f"⚠️  Failed: {failed_count}")
         print()
-        print("📊 Summary:")
-        print(f"   ✅ Successfully processed: {processed_count} email(s)")
-        if failed_count > 0:
-            print(f"   ⚠️  Failed: {failed_count} email(s) (will retry next run)")
-        print()
-        
-        # Show statistics
-        stats = state.get_stats()
-        print("📈 All-Time Statistics:")
-        print(f"   Total emails processed: {stats['total_processed']}")
-        print(f"   Last run: {stats['last_run']}")
-        print()
-        
-        # Show sheet link
-        print("🔗 View your Google Sheet:")
-        print(f"   https://docs.google.com/spreadsheets/d/{config.SPREADSHEET_ID}/edit")
-        print()
+        print("🔗 Google Sheet:")
+        print(f"https://docs.google.com/spreadsheets/d/{config.SPREADSHEET_ID}/edit")
         print("=" * 70)
-        
-    except FileNotFoundError as e:
-        print()
-        print("=" * 70)
-        print("❌ Error: Configuration issue")
-        print("=" * 70)
-        print()
-        print(str(e))
-        print()
-        sys.exit(1)
         
     except Exception as e:
-        print()
-        print("=" * 70)
-        print(f"❌ Error: {e}")
-        print("=" * 70)
-        print()
-        import traceback
-        traceback.print_exc()
+        print("❌ Fatal error:", e)
         sys.exit(1)
 
 
