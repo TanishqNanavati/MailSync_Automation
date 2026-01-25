@@ -3,6 +3,9 @@ credentials/
 token.json
 *.json
 
+# Configuration (contains secrets / IDs)
+config.py
+
 # Python cache
 __pycache__/
 *.py[cod]
@@ -68,5 +71,3 @@ htmlcov/
 
 # Jupyter Notebook
 .ipynb_checkpoints
-
-./config.py
