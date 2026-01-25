@@ -1,7 +1,6 @@
 """
 Gmail Service Module
 Handles all Gmail API operations including fetching and marking emails.
-Phase 3 Implementation.
 """
 
 from googleapiclient.discovery import build

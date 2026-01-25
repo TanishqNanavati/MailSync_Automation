@@ -1,7 +1,6 @@
 """
 State Manager Module
 Handles persistence of processed email IDs to prevent duplicates.
-Phase 6 Implementation.
 """
 
 import json

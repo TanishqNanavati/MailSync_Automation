@@ -1,6 +1,5 @@
 """
 Main orchestration script for Gmail to Sheets automation.
-Phase 7: Complete workflow implementation.
 """
 
 import sys

@@ -1,7 +1,6 @@
 """
 Google Sheets Service Module
 Handles all Google Sheets API operations.
-Phase 5 Implementation.
 """
 
 from googleapiclient.discovery import build
