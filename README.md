@@ -213,17 +213,3 @@ python src/gmail_service.py
 python src/sheets_service.py
 python src/email_parser.py
 python src/state_manager.py
-
-🔮 Future Enhancements
-
-📎 Attachment handling
-
-🏷️ Label-based Gmail filtering
-
-⏱️ Cron / scheduler support
-
-🗄️ Database-backed state (SQLite)
-
-☁️ Cloud deployment (Cloud Run / Lambda)
-
-📊 Dashboard & analytics
