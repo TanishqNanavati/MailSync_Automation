@@ -108,9 +108,9 @@ class EmailSummarizer:
         subject = parsed_email.get('subject', '(No Subject)')
         sender = parsed_email.get('from', 'Unknown')
         
-        # Use first 100 chars of subject as summary
-        if len(subject) > 100:
-            return f"Email from {sender}: {subject[:97]}..."
+        # Use first 300 chars of subject as summary
+        if len(subject) > 300:
+            return f"Email from {sender}: {subject[:300]}..."
         else:
             return f"Email from {sender}: {subject}"
         
@@ -152,7 +152,7 @@ if __name__ == "__main__":
     print()
     
     print("Generating summary...")
-    summary = summarizer.summarize(test_email)
+    summary = summarizer.summarize_email(test_email)
     
     print("\n" + "=" * 60)
     print("Generated Summary:")
