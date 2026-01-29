@@ -7,71 +7,80 @@ Built with modular services, duplicate prevention, retry safety, optional subjec
 
 ``` bash
 ======================================================================
-📧 Gmail to Google Sheets Automation
+📧 Gmail to Google Sheets Automation (Enhanced)
 ======================================================================
 
 🔐 Step 1: Authenticating with Google APIs...
 ----------------------------------------------------------------------
-🔐 Starting OAuth 2.0 authentication...
-📖 A browser window will open for you to grant permissions.
-Please visit this URL to authorize this application: https://accounts.google.com/o/oauth2/auth?...
-gio: Operation not supported
-✅ Authentication successful!
-💾 Saving token for future use...
-✅ Token saved to: /app/token.json
+📋 Loading existing token...
+✅ Using existing valid token
 
 🔧 Step 2: Initializing services...
 ----------------------------------------------------------------------
 ✅ Gmail service initialized
 ✅ Google Sheets service initialized
-📝 No existing state file, creating new one
+📋 Loaded state: 10 processed email(s)
+✅ Gemini AI summarizer initialized
 
 📋 Step 3: Ensuring spreadsheet headers...
 ----------------------------------------------------------------------
 ✅ Headers already exist
 
-📬 Step 4: Fetching unread emails from Gmail...
+📬 Step 4: Fetching ALL unread emails...
 ----------------------------------------------------------------------
+   📂 Searching: Inbox, Promotions, Social, Updates, Spam
 📧 Fetching unread emails (max: 10)...
 📬 Found 10 unread email(s)
 
 🔍 Step 5: Filtering out already-processed emails...
 ----------------------------------------------------------------------
-🆕 Found 10 new email(s)
+🆕 Found 10 new email(s) to process
 
-⚙️  Step 6: Processing emails...
+🏷️  Step 6: Categorizing and prioritizing emails...
+----------------------------------------------------------------------
+✅ Emails categorized and sorted by importance
+
+📊 Category Breakdown:
+   Banking: 2 email(s) [Priority: 5/5]
+   Internship: 7 email(s) [Priority: 4/5]
+   Promotions: 1 email(s) [Priority: 1/5]
+
+⚙️  Step 7: Processing emails (highest importance first)...
 ----------------------------------------------------------------------
 
-[1/10] Processing: msg_001a
-   📧 From: notifications@socialnet.example
-   📝 Subject: Welcome to your new network
-   ⏭️  Skipped (subject keyword filter)
+[1/10] Processing: 19c042a2bc5db027
+   🏷️  Category: Banking | Importance: 5/5
+   📧 From: noreply@unstop.news
+   📝 Subject: Add a Global Brand Like L'Oréal to Your CV | Brand...
+   🤖 Generating summary...
+   📄 Summary: Email from noreply@unstop.news: Add a Global Brand...
+   ✅ Appended to Emails!A12:H12
+   ✅ Successfully processed and marked as read
 
-...
+[2/10] Processing: 19bff7c6f74a04fc
+   🏷️  Category: Banking | Importance: 5/5
+   📧 From: noreply@unstop.news
+   📝 Subject: Tanishq, earn INR 65,000 stipend!...
+   🤖 Generating summary...
+   📄 Summary: Email from noreply@unstop.news: Tanishq, earn INR...
+   ✅ Appended to Emails!A13:H13
+   ✅ Successfully processed and marked as read
 
-[9/10] Processing: msg_009i
-   📧 From: noreply@community.example
-   📝 Subject: Platform update released
-   ⏭️  Skipped (subject keyword filter)
-
-[10/10] Processing: msg_010j
-   📧 From: announcements@competitions.example
-   📝 Subject: Win prizes in our latest challenge
-   ⏭️  Skipped (subject keyword filter)
-
-💾 Step 7: Saving state...
+💾 Step 8: Saving state...
 ----------------------------------------------------------------------
-💾 State saved: 10 total processed
+💾 State saved: 20 total processed
 
 ======================================================================
 ✨ Automation Complete!
 ======================================================================
-✅ Processed: 1
 
-🔗 Google Sheet:
-https://docs.google.com/spreadsheets/d/YOUR_SHEET_ID/edit
+📊 Summary:
+   ✅ Successfully processed: 10 email(s)
+
+📈 All-Time Statistics:
+   Total emails processed: 20
+   Last run: 2026-01-29T06:38:21.058481
 ======================================================================
-
 ```
 
 
@@ -79,22 +88,27 @@ https://docs.google.com/spreadsheets/d/YOUR_SHEET_ID/edit
 
 This project automatically:
 - Authenticates with Gmail & Google Sheets using OAuth 2.0
-- Fetches unread emails from Gmail
+- Fetches unread emails from Gmail across multiple folders (Inbox, Promotions, Social, Updates, Spam)
 - Parses sender, subject, date, and body content
 - Converts HTML → plain text safely
-- Optionally filters emails by subject keywords
-- Appends structured email data into a Google Sheet
+- Categorizes emails based on content, sender patterns, and keywords
+- Assigns importance/priority scores (1-5) to emails
+- Generates AI-powered summaries using Google Gemini API
+- Appends structured email data into a Google Sheet with category, priority, and summary
 - Prevents duplicate processing using persistent state
 - Marks successfully processed emails as read
+- Prioritizes high-importance emails for processing first
 - Retries failed emails safely in future runs
 - Designed with clarity, fault tolerance, and extensibility in mind.
 
 ## ✨ Features
 - 🔐 OAuth 2.0 Authentication (Gmail + Sheets)
-- 📥 Fetch unread emails via Gmail API
+- 📥 Fetch unread emails from multiple Gmail folders
 - 🧠 Intelligent email parsing (plain text, HTML, multipart)
-- 🏷️ Subject keyword filtering (optional)
-- 📊 Auto-formatted Google Sheets integration
+- 🏷️ Automatic email categorization based on rules & keywords
+- ⭐ Dynamic importance scoring (1-5 priority levels)
+- 🤖 AI-powered email summarization (Google Gemini API)
+- 📊 Auto-formatted Google Sheets integration with category & importance columns
 - 🔁 Idempotent processing (no duplicates)
 - 💾 Persistent state tracking (JSON)
 - ⚠️ Safe retry mechanism for failed writes
@@ -112,6 +126,8 @@ mailsync/
 │   ├── sheets_service.py    # Google Sheets API operations
 │   ├── email_parser.py      # Email decoding & parsing
 │   ├── state_manager.py     # Persistent state handling
+│   ├── categorizer.py       # Email categorization & importance scoring
+│   ├── summarizer.py        # AI-powered email summarization (Gemini)
 │
 ├── credentials/
 │   └── credentials.json     # Google OAuth credentials
@@ -124,6 +140,7 @@ mailsync/
 ```
 ## 🔧 Tech Stack
 - Language: Python 3.9+
-- APIs: Gmail API, Google Sheets API
+- APIs: Gmail API, Google Sheets API, Google Gemini API
 - Authentication: OAuth 2.0 (Installed App flow)
-- Libraries: google-api-python-client, google-auth, google-auth-oauthlib
+- AI/ML: Google Generative AI for email summarization
+- Libraries: google-api-python-client, google-auth, google-auth-oauthlib, google-generativeai
