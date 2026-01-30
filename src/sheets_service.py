@@ -113,7 +113,7 @@ class SheetsService:
         """
         try:
             # Define the range (sheet name with ! to indicate entire sheet)
-            range_name = f"{self.sheet_name}!A:H"  # A to E covers 5 columns
+            range_name = f"{self.sheet_name}!A:N"  # A to E covers 5 columns
             
             # Prepare the request body
             body = {

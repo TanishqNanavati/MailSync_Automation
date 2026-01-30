@@ -73,3 +73,7 @@ htmlcov/
 
 # Jupyter Notebook
 .ipynb_checkpoints
+
+
+# analytics
+analytics/
