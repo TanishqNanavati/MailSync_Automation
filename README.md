@@ -3,6 +3,81 @@
 A robust, production-ready Python automation that syncs unread Gmail emails to Google Sheets using OAuth 2.0.
 Built with modular services, duplicate prevention, retry safety, optional subject filtering, and Docker support.
 
+## 🚀 Overview
+
+This project automatically:
+- Authenticates with Gmail & Google Sheets using OAuth 2.0
+- Fetches unread emails from Gmail across multiple folders (Inbox, Promotions, Social, Updates, Spam)
+- Parses sender, subject, date, and body content
+- Converts HTML → plain text safely
+- Categorizes emails based on content, sender patterns, and keywords
+- Assigns importance/priority scores (1-5) to emails
+- Generates AI-powered summaries using Google Gemini API
+- Appends structured email data into a Google Sheet with category, priority, and summary
+- Prevents duplicate processing using persistent state
+- Marks successfully processed emails as read
+- Prioritizes high-importance emails for processing first
+- Retries failed emails safely in future runs
+- Designed with clarity, fault tolerance, and extensibility in mind.
+
+## ✨ Features
+- 🔐 OAuth 2.0 Authentication (Gmail + Sheets)
+- 📥 Fetch unread emails from multiple Gmail folders
+- 🧠 Intelligent email parsing (plain text, HTML, multipart)
+- 🏷️ Automatic email categorization based on rules & keywords
+- ⭐ Dynamic importance scoring (1-5 priority levels)
+- 🤖 AI-powered email summarization (Google Gemini API)
+- 📊 Auto-formatted Google Sheets integration with category & importance columns
+- 🔁 Idempotent processing (no duplicates)
+- 💾 Persistent state tracking (JSON)
+- ⚠️ Safe retry mechanism for failed writes
+- 🧩 Modular service-based architecture
+- 🧪 Independent module testing
+- 🐳 Dockerized for consistent deployment
+- ✅ Action item extraction (detects tasks, deadlines)
+- 📎 Attachment management (download, metadata, Drive upload optional)
+- ✉️ Auto-response system (configurable rules; dry-run mode available)
+- 📅 Calendar integration (extract events; dry-run mode available)
+- 😊 Sentiment & urgency analysis (JSON output with score)
+- 📈 Analytics & reporting (daily volumes, top senders, attachment stats)
+- 🔁 Gemini generation fallback handling (uses safe client call patterns)
+
+## 🏗️ Architecture
+```bash
+mailsync/
+├── src/
+│   ├── main.py                # Orchestration & workflow
+│   ├── auth.py                # OAuth 2.0 authentication
+│   ├── gmail_service.py       # Gmail API operations
+│   ├── sheets_service.py      # Google Sheets API operations
+│   ├── email_parser.py        # Email decoding & parsing
+│   ├── state_manager.py       # Persistent state handling
+│   ├── categorizer.py         # Email categorization & importance scoring
+│   ├── summarizer.py          # AI-powered email summarization (Gemini)
+│   ├── action_extractor.py    # Extracts actionable tasks & deadlines
+│   ├── analytics.py           # Generates analytics reports
+│   ├── attachment_handler.py  # Attachment download & drive upload
+│   ├── auto_responder.py      # Auto-response generation & sending (dry-run)
+│   ├── calendar_service.py    # Calendar event creation (dry-run)
+│   ├── gmail_service.py       # Gmail API wrapper (listed twice for clarity)
+│   ├── sentiment_analyzer.py  # Sentiment & urgency analysis
+│
+├── credentials/
+│   └── credentials.json       # Google OAuth credentials
+
+├── token.json                 # OAuth token (auto-generated)
+├── state.json                 # Processed email state
+├── config.py                  # Central configuration
+├── Dockerfile                 # Container definition
+└── README.md
+```
+## 🔧 Tech Stack
+- Language: Python 3.9+
+- APIs: Gmail API, Google Sheets API, Google Gemini API
+- Authentication: OAuth 2.0 (Installed App flow)
+- AI/ML: Google Generative AI for email summarization
+- Libraries: google-api-python-client, google-auth, google-auth-oauthlib, google-generativeai
+
 ## Output Format
 
 ``` bash
@@ -150,79 +225,3 @@ Built with modular services, duplicate prevention, retry safety, optional subjec
 
 ======================================================================
 ```
-
-
-## 🚀 Overview
-
-This project automatically:
-- Authenticates with Gmail & Google Sheets using OAuth 2.0
-- Fetches unread emails from Gmail across multiple folders (Inbox, Promotions, Social, Updates, Spam)
-- Parses sender, subject, date, and body content
-- Converts HTML → plain text safely
-- Categorizes emails based on content, sender patterns, and keywords
-- Assigns importance/priority scores (1-5) to emails
-- Generates AI-powered summaries using Google Gemini API
-- Appends structured email data into a Google Sheet with category, priority, and summary
-- Prevents duplicate processing using persistent state
-- Marks successfully processed emails as read
-- Prioritizes high-importance emails for processing first
-- Retries failed emails safely in future runs
-- Designed with clarity, fault tolerance, and extensibility in mind.
-
-## ✨ Features
-- 🔐 OAuth 2.0 Authentication (Gmail + Sheets)
-- 📥 Fetch unread emails from multiple Gmail folders
-- 🧠 Intelligent email parsing (plain text, HTML, multipart)
-- 🏷️ Automatic email categorization based on rules & keywords
-- ⭐ Dynamic importance scoring (1-5 priority levels)
-- 🤖 AI-powered email summarization (Google Gemini API)
-- 📊 Auto-formatted Google Sheets integration with category & importance columns
-- 🔁 Idempotent processing (no duplicates)
-- 💾 Persistent state tracking (JSON)
-- ⚠️ Safe retry mechanism for failed writes
-- 🧩 Modular service-based architecture
-- 🧪 Independent module testing
-- 🐳 Dockerized for consistent deployment
-- ✅ Action item extraction (detects tasks, deadlines)
-- 📎 Attachment management (download, metadata, Drive upload optional)
-- ✉️ Auto-response system (configurable rules; dry-run mode available)
-- 📅 Calendar integration (extract events; dry-run mode available)
-- 😊 Sentiment & urgency analysis (JSON output with score)
-- 📈 Analytics & reporting (daily volumes, top senders, attachment stats)
-- 🔁 Gemini generation fallback handling (uses safe client call patterns)
-
-## 🏗️ Architecture
-```bash
-mailsync/
-├── src/
-│   ├── main.py                # Orchestration & workflow
-│   ├── auth.py                # OAuth 2.0 authentication
-│   ├── gmail_service.py       # Gmail API operations
-│   ├── sheets_service.py      # Google Sheets API operations
-│   ├── email_parser.py        # Email decoding & parsing
-│   ├── state_manager.py       # Persistent state handling
-│   ├── categorizer.py         # Email categorization & importance scoring
-│   ├── summarizer.py          # AI-powered email summarization (Gemini)
-│   ├── action_extractor.py    # Extracts actionable tasks & deadlines
-│   ├── analytics.py           # Generates analytics reports
-│   ├── attachment_handler.py  # Attachment download & drive upload
-│   ├── auto_responder.py      # Auto-response generation & sending (dry-run)
-│   ├── calendar_service.py    # Calendar event creation (dry-run)
-│   ├── gmail_service.py       # Gmail API wrapper (listed twice for clarity)
-│   ├── sentiment_analyzer.py  # Sentiment & urgency analysis
-│
-├── credentials/
-│   └── credentials.json       # Google OAuth credentials
-
-├── token.json                 # OAuth token (auto-generated)
-├── state.json                 # Processed email state
-├── config.py                  # Central configuration
-├── Dockerfile                 # Container definition
-└── README.md
-```
-## 🔧 Tech Stack
-- Language: Python 3.9+
-- APIs: Gmail API, Google Sheets API, Google Gemini API
-- Authentication: OAuth 2.0 (Installed App flow)
-- AI/ML: Google Generative AI for email summarization
-- Libraries: google-api-python-client, google-auth, google-auth-oauthlib, google-generativeai
