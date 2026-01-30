@@ -1,6 +1,7 @@
 """
-Main orchestration script - Phase 1 Enhanced
-Includes: Action Items, Attachments, Analytics
+Main orchestration --
+Includes: Categorization, Summarization, Action Items, Attachments, 
+          Analytics, Sentiment Analysis, Auto-Response, Calendar Integration
 """
 
 import sys
@@ -17,15 +18,22 @@ from email_parser import parse_email
 from state_manager import StateManager
 from categorizer import categorize_email, get_importance
 from summarizer import EmailSummarizer
-from action_extractor import ActionExtractor  # NEW
-from attachment_handler import AttachmentHandler  # NEW
-from analytics import EmailAnalytics  # NEW
+
+# Phase 1 imports
+from action_extractor import ActionExtractor
+from attachment_handler import AttachmentHandler
+from analytics import EmailAnalytics
+
+# Phase 2 imports
+from sentiment_analyzer import SentimentAnalyzer
+from auto_responder import AutoResponder
+from calendar_service import CalendarService
 
 
 def main():
-    """Enhanced main workflow with Phase 1 features."""
+    """Enhanced main workflow with Phase 1 + Phase 2 features."""
     print("=" * 70)
-    print("📧 Gmail to Google Sheets Automation (Phase 1 Enhanced)")
+    print("📧 Gmail to Google Sheets Automation (Full Featured)")
     print("=" * 70)
     print()
     
@@ -39,18 +47,26 @@ def main():
         print()
         
         # =================================================================
-        # Step 2: Initialize Services
+        # Step 2: Initialize All Services
         # =================================================================
         print("🔧 Step 2: Initializing services...")
         print("-" * 70)
         
+        # Core services
         gmail = GmailService(credentials)
         sheets = SheetsService(credentials)
         state = StateManager()
         summarizer = EmailSummarizer()
-        action_extractor = ActionExtractor(use_llm=True)  # NEW
-        attachment_handler = AttachmentHandler(gmail_service=gmail)  # NEW
-        analytics = EmailAnalytics(sheets_service=sheets, state_manager=state)  # NEW
+        
+        # Phase 1 services
+        action_extractor = ActionExtractor(use_llm=True)
+        attachment_handler = AttachmentHandler(gmail_service=gmail)
+        analytics = EmailAnalytics(sheets_service=sheets, state_manager=state)
+        
+        # Phase 2 services
+        sentiment_analyzer = SentimentAnalyzer(use_llm=True)
+        auto_responder = AutoResponder(gmail_service=gmail)
+        calendar_service = CalendarService(credentials, use_llm=True)
         
         print()
         
@@ -150,7 +166,7 @@ def main():
         print()
         
         # =================================================================
-        # Step 7: Process Emails (ENHANCED with Phase 1 features)
+        # Step 7: Process Emails (FULL PIPELINE - Phase 1 + Phase 2)
         # =================================================================
         print("⚙️  Step 7: Processing emails (highest importance first)...")
         print("-" * 70)
@@ -175,12 +191,16 @@ def main():
                 print(f"   📧 From: {parsed['from']}")
                 print(f"   📝 Subject: {parsed['subject'][:50]}...")
                 
-                # AI Summary
+                # =========================================================
+                # AI Summary (Base Feature)
+                # =========================================================
                 print(f"   🤖 Generating summary...")
                 summary = summarizer.summarize_email(parsed)
                 print(f"   📄 Summary: {summary[:60]}...")
                 
+                # =========================================================
                 # PHASE 1 Feature 1: Extract Action Items
+                # =========================================================
                 print(f"   ✅ Extracting action items...")
                 actions = action_extractor.extract(parsed)
                 if actions['actions'] != 'None':
@@ -188,28 +208,70 @@ def main():
                     if actions['due_date'] != 'None':
                         print(f"   📅 Due: {actions['due_date']}")
                 
+                # =========================================================
                 # PHASE 1 Feature 2: Process Attachments
+                # =========================================================
                 print(f"   📎 Processing attachments...")
                 attachments = attachment_handler.process_attachments(message, message_id)
                 if attachments['has_attachments'] == 'Yes':
                     print(f"   📎 Found {attachments['attachment_count']} attachment(s): {attachments['attachment_names'][:50]}...")
                 
-                # Prepare row with PHASE 1 columns (14 total)
+                # =========================================================
+                # PHASE 2 Feature 1: Sentiment Analysis
+                # =========================================================
+                print(f"   😊 Analyzing sentiment...")
+                sentiment = sentiment_analyzer.analyze(parsed)
+                print(f"   💭 Sentiment: {sentiment['sentiment']} | Urgency: {sentiment['urgency_score']}")
+                
+                # =========================================================
+                # PHASE 2 Feature 2: Auto-Response
+                # =========================================================
+                should_respond, response_type = auto_responder.should_respond(parsed, category)
+                response_sent = 'No'
+                response_type_str = 'None'
+                
+                if should_respond:
+                    response_text = auto_responder.generate_response(parsed, response_type)
+                    if auto_responder.send_response(message_id, parsed, response_text):
+                        response_sent = 'Yes'
+                        response_type_str = response_type
+                        print(f"   📧 Auto-response sent ({response_type})")
+                
+                # =========================================================
+                # PHASE 2 Feature 3: Calendar Integration
+                # =========================================================
+                calendar_created = 'No'
+                
+                if calendar_service.should_create_event(parsed, category):
+                    print(f"   📅 Extracting calendar event...")
+                    event_details = calendar_service.extract_event_details(parsed)
+                    
+                    if event_details:
+                        event_link = calendar_service.create_event(event_details)
+                        if event_link and event_link != 'Failed':
+                            calendar_created = 'Yes' if event_link != 'DryRun' else 'DryRun'
+                            print(f"   📅 Calendar event: {event_details['title'][:40]}...")
+                
                 row = [
-                    parsed['message_id'],      # A
-                    parsed['from'],            # B
-                    parsed['subject'],         # C
-                    parsed['date'],            # D
-                    category,                  # E
-                    str(importance),           # F
-                    summary,                   # G
-                    parsed['content'],         # H
-                    actions['actions'],        # I - NEW
-                    actions['due_date'],       # J - NEW
-                    attachments['has_attachments'],    # K - NEW
-                    attachments['attachment_names'],   # L - NEW
-                    str(attachments['attachment_count']),  # M - NEW
-                    attachments['attachment_links']    # N - NEW
+                    parsed['message_id'],                  
+                    parsed['from'],                        
+                    parsed['subject'],                     
+                    parsed['date'],                        
+                    category,                              
+                    str(importance),                       
+                    summary,                               
+                    parsed['content'],                     
+                    actions['actions'],                     
+                    actions['due_date'],                    
+                    attachments['has_attachments'],         
+                    attachments['attachment_names'],        
+                    str(attachments['attachment_count']),   
+                    attachments['attachment_links'],        
+                    sentiment['sentiment'],                 
+                    str(sentiment['urgency_score']),        
+                    response_sent,                          
+                    response_type_str,                      
+                    calendar_created                        
                 ]
                 
                 # Append to Sheets
@@ -224,7 +286,7 @@ def main():
                     print(f"   ⚠️  Failed to append to Sheets (will retry next run)")
                     failed_count += 1
                 
-                # Rate limiting for Gemini
+                # Rate limiting for Gemini API
                 if i < len(sorted_emails):
                     time.sleep(4)  # 15 req/min for Gemini Pro
                 
@@ -269,9 +331,28 @@ def main():
         print(f"   Last run: {stats['last_run']}")
         print()
         
-        # Sheet link
-        print("🔗 View your Google Sheet:")
-        print(f"   https://docs.google.com/spreadsheets/d/{config.SPREADSHEET_ID}/edit")
+        
+        # Feature status
+        print("🎯 Active Features:")
+        features = []
+        if config.ENABLE_ACTION_EXTRACTION:
+            features.append("✅ Action Items")
+        if config.ENABLE_ATTACHMENT_HANDLING:
+            features.append("✅ Attachments")
+        if config.ENABLE_ANALYTICS:
+            features.append("✅ Analytics")
+        if config.ENABLE_SENTIMENT_ANALYSIS:
+            features.append("✅ Sentiment Analysis")
+        if config.ENABLE_AUTO_RESPONSE:
+            status = "🧪 Dry-Run" if config.AUTO_RESPONSE_DRY_RUN else "✅ Live"
+            features.append(f"{status} Auto-Response")
+        if config.ENABLE_CALENDAR_INTEGRATION:
+            status = "🧪 Dry-Run" if config.CALENDAR_DRY_RUN else "✅ Live"
+            features.append(f"{status} Calendar Events")
+        
+        for feature in features:
+            print(f"   {feature}")
+        
         print()
         print("=" * 70)
         

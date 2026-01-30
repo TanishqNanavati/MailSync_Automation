@@ -7,7 +7,7 @@ Built with modular services, duplicate prevention, retry safety, optional subjec
 
 ``` bash
 ======================================================================
-📧 Gmail to Google Sheets Automation (Enhanced)
+📧 Gmail to Google Sheets Automation (Full Featured)
 ======================================================================
 
 🔐 Step 1: Authenticating with Google APIs...
@@ -19,8 +19,9 @@ Built with modular services, duplicate prevention, retry safety, optional subjec
 ----------------------------------------------------------------------
 ✅ Gmail service initialized
 ✅ Google Sheets service initialized
-📋 Loaded state: 10 processed email(s)
+📝 No existing state file, creating new one
 ✅ Gemini AI summarizer initialized
+✅ Google Calendar service initialized
 
 📋 Step 3: Ensuring spreadsheet headers...
 ----------------------------------------------------------------------
@@ -41,36 +42,91 @@ Built with modular services, duplicate prevention, retry safety, optional subjec
 ✅ Emails categorized and sorted by importance
 
 📊 Category Breakdown:
-   Banking: 2 email(s) [Priority: 5/5]
-   Internship: 7 email(s) [Priority: 4/5]
-   Promotions: 1 email(s) [Priority: 1/5]
+   Banking: 3 email(s) [Priority: 5/5]
+   Internship: 3 email(s) [Priority: 4/5]
+   Work: 1 email(s) [Priority: 3/5]
+   Other: 1 email(s) [Priority: 2/5]
+   Promotions: 2 email(s) [Priority: 1/5]
 
 ⚙️  Step 7: Processing emails (highest importance first)...
 ----------------------------------------------------------------------
 
-[1/10] Processing: 19c042a2bc5db027
+[1/10] Processing: msg-0001
    🏷️  Category: Banking | Importance: 5/5
-   📧 From: noreply@unstop.news
-   📝 Subject: Add a Global Brand Like L'Oréal to Your CV | Brand...
+   📧 From: alerts@bankexample.com
+   📝 Subject: Transaction alert: Debit on your account
    🤖 Generating summary...
-   📄 Summary: Email from noreply@unstop.news: Add a Global Brand...
-   ✅ Appended to Emails!A12:H12
+   📄 Summary: Debit of $25.00 at Grocery Store on 2026-01-30. If unauthorized, contact support.
+   ✅ Extracted action items: ['Verify transaction', 'Contact bank if unauthorized']
+   📎 Processing attachments... None
+   😊 Analyzing sentiment... neutral | Urgency: 0.4
+   ✅ Appended to Emails!A72:S72
    ✅ Successfully processed and marked as read
 
-[2/10] Processing: 19bff7c6f74a04fc
-   🏷️  Category: Banking | Importance: 5/5
-   📧 From: noreply@unstop.news
-   📝 Subject: Tanishq, earn INR 65,000 stipend!...
+[2/10] Processing: msg-0002
+   🏷️  Category: Internship | Importance: 4/5
+   📧 From: recruiters@companyexample.com
+   📝 Subject: Interview Invitation: Software Engineer Intern
    🤖 Generating summary...
-   📄 Summary: Email from noreply@unstop.news: Tanishq, earn INR...
-   ✅ Appended to Emails!A13:H13
+   📄 Summary: Invitation to interview for the Software Engineer Intern role on 2026-02-03.
+   ✅ Extracted action items: ['Confirm availability', 'Prepare resume']
+   📎 Processing attachments... resume.pdf (downloaded)
+   😊 Analyzing sentiment... positive | Urgency: 0.6
+   📅 Calendar event: Detected (Dry-run: not created)
+   ✅ Appended to Emails!A73:S73
    ✅ Successfully processed and marked as read
+
+[3/10] Processing: msg-0003
+   🏷️  Category: Promotions | Importance: 1/5
+   📧 From: deals@newsletter.example
+   📝 Subject: Weekly Deals and Tips
+   🤖 Generating summary...
+   📄 Summary: Latest deals and engineering tips from TechUpdates.
+   ✅ Extracted action items: []
+   📎 Processing attachments... None
+   😊 Analyzing sentiment... neutral | Urgency: 0.2
+   ✅ Appended to Emails!A74:S74
+   ✅ Successfully processed and marked as read
+
+... (remaining messages processed similarly)
 
 💾 Step 8: Saving state...
 ----------------------------------------------------------------------
-💾 State saved: 20 total processed
+💾 State saved: 10 total processed
+
 
 ======================================================================
+📊 Generating Email Analytics Report
+======================================================================
+
+📊 EMAIL ANALYTICS REPORT
+======================================================================
+
+📈 SUMMARY
+   Total Emails Processed: 10
+   Date Range: 2026-01-25 to 2026-01-30
+   Days Span: 6 days
+
+🏷️  EMAILS BY CATEGORY
+   Banking: 3 emails
+   Internship: 3 emails
+   Promotions: 2 emails
+   Work: 1 email
+   Other: 1 email
+
+📎 ATTACHMENT STATISTICS
+   Emails with attachments: 1
+   Emails without attachments: 9
+   Total attachments: 1
+
+✅ ACTION ITEM STATISTICS
+   Emails with action items: 7
+   Emails without action items: 3
+
+💾 Report saved to: analytics/email_analytics_report.txt
+
+======================================================================
+
 ✨ Automation Complete!
 ======================================================================
 
@@ -78,8 +134,20 @@ Built with modular services, duplicate prevention, retry safety, optional subjec
    ✅ Successfully processed: 10 email(s)
 
 📈 All-Time Statistics:
-   Total emails processed: 20
-   Last run: 2026-01-29T06:38:21.058481
+   Total emails processed: 10
+   Last run: 2026-01-30T07:32:15.148063
+
+🔗 View your Google Sheet:
+   https://docs.google.com/spreadsheets/d/1MV6Gbj80zKFjr4RCrVn_EQmNIY_IGYVyoVx6kNnsyXo/edit
+
+🎯 Active Features:
+   ✅ Action Items
+   ✅ Attachments
+   ✅ Analytics
+   ✅ Sentiment Analysis
+   ✅ Auto-Response (Dry-Run)
+   ✅ Calendar Integration (Dry-Run)
+
 ======================================================================
 ```
 
@@ -115,27 +183,41 @@ This project automatically:
 - 🧩 Modular service-based architecture
 - 🧪 Independent module testing
 - 🐳 Dockerized for consistent deployment
+- ✅ Action item extraction (detects tasks, deadlines)
+- 📎 Attachment management (download, metadata, Drive upload optional)
+- ✉️ Auto-response system (configurable rules; dry-run mode available)
+- 📅 Calendar integration (extract events; dry-run mode available)
+- 😊 Sentiment & urgency analysis (JSON output with score)
+- 📈 Analytics & reporting (daily volumes, top senders, attachment stats)
+- 🔁 Gemini generation fallback handling (uses safe client call patterns)
 
 ## 🏗️ Architecture
 ```bash
 mailsync/
 ├── src/
-│   ├── main.py              # Orchestration & workflow
-│   ├── auth.py              # OAuth 2.0 authentication
-│   ├── gmail_service.py     # Gmail API operations
-│   ├── sheets_service.py    # Google Sheets API operations
-│   ├── email_parser.py      # Email decoding & parsing
-│   ├── state_manager.py     # Persistent state handling
-│   ├── categorizer.py       # Email categorization & importance scoring
-│   ├── summarizer.py        # AI-powered email summarization (Gemini)
+│   ├── main.py                # Orchestration & workflow
+│   ├── auth.py                # OAuth 2.0 authentication
+│   ├── gmail_service.py       # Gmail API operations
+│   ├── sheets_service.py      # Google Sheets API operations
+│   ├── email_parser.py        # Email decoding & parsing
+│   ├── state_manager.py       # Persistent state handling
+│   ├── categorizer.py         # Email categorization & importance scoring
+│   ├── summarizer.py          # AI-powered email summarization (Gemini)
+│   ├── action_extractor.py    # Extracts actionable tasks & deadlines
+│   ├── analytics.py           # Generates analytics reports
+│   ├── attachment_handler.py  # Attachment download & drive upload
+│   ├── auto_responder.py      # Auto-response generation & sending (dry-run)
+│   ├── calendar_service.py    # Calendar event creation (dry-run)
+│   ├── gmail_service.py       # Gmail API wrapper (listed twice for clarity)
+│   ├── sentiment_analyzer.py  # Sentiment & urgency analysis
 │
 ├── credentials/
-│   └── credentials.json     # Google OAuth credentials
-│
-├── token.json               # OAuth token (auto-generated)
-├── state.json               # Processed email state
-├── config.py                # Central configuration
-├── Dockerfile               # Container definition
+│   └── credentials.json       # Google OAuth credentials
+
+├── token.json                 # OAuth token (auto-generated)
+├── state.json                 # Processed email state
+├── config.py                  # Central configuration
+├── Dockerfile                 # Container definition
 └── README.md
 ```
 ## 🔧 Tech Stack
