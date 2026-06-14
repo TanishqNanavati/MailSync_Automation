@@ -1,0 +1,10 @@
+.env
+token.json
+state.json
+credentials/
+__pycache__/
+venv/
+*.pyc
+.git/
+.gitignore
+analytics/
