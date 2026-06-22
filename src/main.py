@@ -39,7 +39,7 @@ def main():
     
     try:
         # =================================================================
-        # Step 1: Authentication
+        # Authentication
         # =================================================================
         print("🔐 Step 1: Authenticating with Google APIs...")
         print("-" * 70)
@@ -47,7 +47,7 @@ def main():
         print()
         
         # =================================================================
-        # Step 2: Initialize All Services
+        # Initialize All Services
         # =================================================================
         print("🔧 Step 2: Initializing services...")
         print("-" * 70)
@@ -58,12 +58,10 @@ def main():
         state = StateManager()
         summarizer = EmailSummarizer()
         
-        # Phase 1 services
         action_extractor = ActionExtractor(use_llm=True)
         attachment_handler = AttachmentHandler(gmail_service=gmail)
         analytics = EmailAnalytics(sheets_service=sheets, state_manager=state)
         
-        # Phase 2 services
         sentiment_analyzer = SentimentAnalyzer(use_llm=True)
         auto_responder = AutoResponder(gmail_service=gmail)
         calendar_service = CalendarService(credentials, use_llm=True)
@@ -71,7 +69,7 @@ def main():
         print()
         
         # =================================================================
-        # Step 3: Ensure Sheet Headers
+        # Ensure Sheet Headers
         # =================================================================
         print("📋 Step 3: Ensuring spreadsheet headers...")
         print("-" * 70)
@@ -79,7 +77,7 @@ def main():
         print()
         
         # =================================================================
-        # Step 4: Fetch ALL Unread Emails
+        # Fetch ALL Unread Emails
         # =================================================================
         print("📬 Step 4: Fetching ALL unread emails...")
         print("-" * 70)
@@ -101,7 +99,7 @@ def main():
         print()
         
         # =================================================================
-        # Step 5: Filter Already-Processed Emails
+        #  Filter Already-Processed Emails
         # =================================================================
         print("🔍 Step 5: Filtering out already-processed emails...")
         print("-" * 70)
@@ -123,7 +121,7 @@ def main():
         print()
         
         # =================================================================
-        # Step 6: Categorize and Sort by Importance
+        # Categorize and Sort by Importance
         # =================================================================
         print("🏷️  Step 6: Categorizing and prioritizing emails...")
         print("-" * 70)
@@ -166,7 +164,7 @@ def main():
         print()
         
         # =================================================================
-        # Step 7: Process Emails (FULL PIPELINE - Phase 1 + Phase 2)
+        # Process Emails (FULL PIPELINE - Phase 1 + Phase 2)
         # =================================================================
         print("⚙️  Step 7: Processing emails (highest importance first)...")
         print("-" * 70)
@@ -199,7 +197,7 @@ def main():
                 print(f"   📄 Summary: {summary[:60]}...")
                 
                 # =========================================================
-                # PHASE 1 Feature 1: Extract Action Items
+                # Extract Action Items
                 # =========================================================
                 print(f"   ✅ Extracting action items...")
                 actions = action_extractor.extract(parsed)
@@ -209,7 +207,7 @@ def main():
                         print(f"   📅 Due: {actions['due_date']}")
                 
                 # =========================================================
-                # PHASE 1 Feature 2: Process Attachments
+                # Process Attachments
                 # =========================================================
                 print(f"   📎 Processing attachments...")
                 attachments = attachment_handler.process_attachments(message, message_id)
@@ -217,14 +215,14 @@ def main():
                     print(f"   📎 Found {attachments['attachment_count']} attachment(s): {attachments['attachment_names'][:50]}...")
                 
                 # =========================================================
-                # PHASE 2 Feature 1: Sentiment Analysis
+                # Sentiment Analysis
                 # =========================================================
                 print(f"   😊 Analyzing sentiment...")
                 sentiment = sentiment_analyzer.analyze(parsed)
                 print(f"   💭 Sentiment: {sentiment['sentiment']} | Urgency: {sentiment['urgency_score']}")
                 
                 # =========================================================
-                # PHASE 2 Feature 2: Auto-Response
+                # Auto-Response
                 # =========================================================
                 should_respond, response_type = auto_responder.should_respond(parsed, category)
                 response_sent = 'No'
@@ -238,7 +236,7 @@ def main():
                         print(f"   📧 Auto-response sent ({response_type})")
                 
                 # =========================================================
-                # PHASE 2 Feature 3: Calendar Integration
+                # Calendar Integration
                 # =========================================================
                 calendar_created = 'No'
                 
@@ -298,7 +296,7 @@ def main():
         print()
         
         # =================================================================
-        # Step 8: Save State
+        # Save State
         # =================================================================
         print("💾 Step 8: Saving state...")
         print("-" * 70)
@@ -306,7 +304,7 @@ def main():
         print()
         
         # =================================================================
-        # Step 9: Generate Analytics (PHASE 1 Feature 3)
+        # Generate Analytics (PHASE 1 Feature 3)
         # =================================================================
         if config.ENABLE_ANALYTICS and processed_count > 0:
             analytics.generate_report()
